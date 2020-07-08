@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <title>Vue.js Calendar</title>
+</head>
+<body>
+  <div  id="app">
+  
+  <div>
+    <div>
+      <p>Год
+        <input v-on:change = 'formMonth' type="number" v-model = 'calendarData.selectedYear'>
+        Месяц
+        <select v-on:change = 'formMonth' v-model="calendarData.selectedMonth">
+            
+          <option v-for = 'month in calendarData.months'>{{month}}</option>
+          
+      </select>
+      </p>
+    
+    </div>
+
+      <table>
+              <tr>
+                <td><strong>Вс</strong></td>
+                <td><strong>Пн</strong></td>
+                <td><strong>Вт</strong></td>
+                <td><strong>Ср</strong></td>
+                <td><strong>Чт</strong></td>
+                <td><strong>Пт</strong></td>
+                <td><strong>Сб</strong></td>
+              </tr>
+              <tr v-for = 'week in calendarData.formedMonth' >
+                  <td  v-for = '(day, indexDay) in week' v-bind:style = '{border: "1px solid black"}' >
+                  {{day[0] != "_" ? day[0] : ""}}
+                </td>
+
+              </tr>
+            
+      </table>   
+    </div>
+
+  </div>
+  
+  <script>
+      let app = new Vue ({
+      el: '#app',
+      data: {
+        calendarData:{
+          months: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+          weekDays: ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"],
+          formedMonth: [],
+          selectedYear: (function(){let date = new Date();
+                          return date.getFullYear();})(),
+          selectedMonth: (function(){let date = new Date();
+                          return ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"][date.getMonth()];})(),
+        },
+      },
+      methods: {
+          formMonth: function(){
+          this.calendarData.formedMonth = [];
+          month = [];
+          let leapYear = false;
+          if (this.calendarData.selectedYear % 4 == 0 && this.calendarData.selectedYear != '') {
+              leapYear = true;
+            };
+            
+              i = this.calendarData.months.indexOf(this.calendarData.selectedMonth);
+                           
+              let dayInMonth = 0;
+              if (i == 0 || i == 2 || i == 4 || i == 6 || i == 7 || i == 9 || i == 11) {
+                dayInMonth = 31;
+              }
+              else if (i == 3 || i == 5 || i == 8 || i == 10){
+                dayInMonth = 30;
+              }
+              else if (i == 1 && leapYear) {
+                dayInMonth = 29;
+              }
+              else if (i == 1 && !leapYear) {
+                dayInMonth = 28;
+              }
+
+              for ( let j = 1; j <= dayInMonth; j++){
+                
+                month.push([j,{active:false}]);
+              }
+               
+              let data = new Date(this.calendarData.selectedYear, this.calendarData.months.indexOf(this.calendarData.selectedMonth), 1);
+              let dayNum = data.getDay();
+
+              for (let j = 0; j < dayNum; j++){
+                month.unshift(['_',{active: "inactive"}]);
+              }
+              let weeksCount = 0;
+              if (month.length % 7 == 0){
+                weeksCount = Math.trunc(month.length/7);
+              } else {
+                weeksCount = Math.trunc(month.length/7) +1;
+              }
+              let monthByWeek = [];
+
+              for (let k = 0; k < weeksCount; k++){
+                monthByWeek = month.slice(k*7, k*7+7);
+                this.calendarData.formedMonth.push(monthByWeek);
+              }
+              console.log(this.calendarData.formedMonth);
+          },
+        },
+        beforeMount(){
+            this.formMonth();
+        },
+     });
+
+</script>
+
+</body>
+</html>
